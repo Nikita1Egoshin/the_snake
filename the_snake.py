@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import randint
 
 import pygame
 
@@ -45,17 +45,17 @@ class GameObject:
     def __init__(self) -> None:
         self.position = (0, 0)
         self.body_color = None
-    
+
     def draw(self):
         pass
 
-# Класс для яблока
+
 class Apple(GameObject):
     def __init__(self):
         super().__init__()
         self.body_color = APPLE_COLOR
-        self.randomize_position
-    
+        self.randomize_position()
+
     def draw(self):
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
@@ -73,7 +73,8 @@ class Snake(GameObject):
         self.positions = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
         self.direction = RIGHT
         self.next_direction = None
-    
+        self.growing = False
+
     def draw(self):
         for position in self.positions[:-1]:
             rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
@@ -86,12 +87,23 @@ class Snake(GameObject):
         pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
 
         # Затирание последнего сегмента
-        if self.positions[-1]:
-            last_rect = pygame.Rect(self.positions[-1], (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
-    
+        changed_position = (
+            self.positions[-1][0] + GRID_SIZE * self.direction[0] * -1,
+            self.positions[-1][1] + GRID_SIZE * self.direction[1] * -1,
+        )
+        last_rect = pygame.Rect(changed_position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
+
     def move(self):
-        new_head = (self.positions[0][0] + self.direction[0], self.positions[0][1] + self.direction[1])
+        new_head = (
+            (self.positions[0][0] + self.direction[0] * GRID_SIZE) % SCREEN_WIDTH,
+            (self.positions[0][1] + self.direction[1] * GRID_SIZE) % SCREEN_HEIGHT
+        )
+        self.positions.insert(0, new_head)
+        if not self.growing:
+            self.positions.pop()
+        self.growing = False
+        
 
     def update_direction(self):
         if self.next_direction:
@@ -104,8 +116,8 @@ class Snake(GameObject):
     def reset(self):
         self.positions = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
 
-    def grow(self, apple_position):
-        self.positions.insert(0, apple_position)
+    def grow(self):
+        self.growing = True
 
 
 def handle_keys(game_object):
@@ -139,11 +151,13 @@ def main():
 
         if snake.positions[0] == apple.position:
             apple.randomize_position()
-            snake.grow(apple.position)
+            snake.grow()
 
         if snake.positions[0] in snake.positions[1:]:
             snake.reset()
         
+        screen.fill(BOARD_BACKGROUND_COLOR)
+
         apple.draw()
         snake.draw()
 
