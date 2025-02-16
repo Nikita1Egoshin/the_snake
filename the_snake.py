@@ -150,6 +150,7 @@ def handle_keys(game_object):
 
 
 def main():
+    """Основной метод"""
     pygame.init()
     apple = Apple()
     snake = Snake()
