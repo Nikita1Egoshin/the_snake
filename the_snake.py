@@ -127,6 +127,10 @@ class Snake(GameObject):
         """Возвращает позицию в центр поля"""
         self.positions = [(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)]
 
+    def get_head_position(self):
+        """Возвращает позицию головы"""
+        return self.position[0]
+
     def grow(self):
         """Рост змейки"""
         self.growing = True
