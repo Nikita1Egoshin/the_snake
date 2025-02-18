@@ -65,8 +65,11 @@ class Apple(GameObject):
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
-    def randomize_position(self, snake_positions: list) -> None:
+    def randomize_position(self, snake_positions: list = None) -> None:
         """Изменяет позицию"""
+        if snake_positions is None:
+            snake_positions = []
+
         while True:
             self.position = (
                 randint(0, GRID_WIDTH - 1) * GRID_SIZE,
